@@ -1,49 +1,52 @@
 import subprocess
 
-def run_command(command):
+def install_software():
+    # List of software to install
+    software = [
+        "chromium-browser",  # For Chromium
+        "unclutter",         # For Unclutter
+        "putty",             # For PuTTY
+        "remmina",           # For Remmina
+        "filezilla",         # For FileZilla
+    ]
+
+    # Install VS Code (requires extra steps for adding Microsoft repository)
+    vscode_commands = [
+        "wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg",
+        "sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/",
+        "sudo sh -c 'echo \"deb [arch=amd64] https://packages.microsoft.com/repos/code stable main\" > /etc/apt/sources.list.d/vscode.list'",
+        "sudo apt update",
+        "sudo apt install code"
+    ]
+
+    # Install Angry IP Scanner (requires manual download)
+    angry_ip_commands = [
+        "wget https://github.com/angryip/ipscan/releases/download/3.8.2/ipscan_3.8.2_amd64.deb",
+        "sudo dpkg -i ipscan_3.8.2_amd64.deb",
+        "sudo apt-get install -f"  # Fix any dependency issues
+    ]
+
     try:
-        subprocess.run(command, check=True, shell=True)
+        # Update package list
+        subprocess.run(["sudo", "apt", "update"], check=True)
+
+        # Install software from default repositories
+        for package in software:
+            subprocess.run(["sudo", "apt", "install", "-y", package], check=True)
+
+        # Install VS Code
+        for cmd in vscode_commands:
+            subprocess.run(cmd, shell=True, check=True)
+
+        # Install Angry IP Scanner
+        for cmd in angry_ip_commands:
+            subprocess.run(cmd, shell=True, check=True)
+
+        print("All software installed successfully.")
+
     except subprocess.CalledProcessError as e:
-        print(f"Error executing {command}: {e}")
-
-def install_chrome():
-    print("Installing Google Chrome...")
-    run_command('wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb')
-    run_command('sudo dpkg -i google-chrome-stable_current_amd64.deb')
-    run_command('sudo apt --fix-broken install -y')
-    run_command('rm google-chrome-stable_current_amd64.deb')
-    print("Google Chrome installed successfully.")
-
-def install_putty():
-    print("Installing PuTTY...")
-    run_command('sudo apt update && sudo apt install -y putty')
-    print("PuTTY installed successfully.")
-
-def install_angry_ip_scanner():
-    print("Installing Angry IP Scanner...")
-    run_command('wget https://github.com/angryip/ipscan/releases/download/3.9.0/ipscan_3.9.0_amd64.deb')
-    run_command('sudo dpkg -i ipscan_3.9.0_amd64.deb')
-    run_command('sudo apt --fix-broken install -y')
-    run_command('rm ipscan_3.9.0_amd64.deb')
-    print("Angry IP Scanner installed successfully.")
-
-def install_remmina():
-    print("Installing Remmina...")
-    run_command('sudo apt update && sudo apt install -y remmina remmina-plugin-rdp remmina-plugin-vnc')
-    print("Remmina installed successfully.")
-
-def install_filezilla():
-    print("Installing FileZilla...")
-    run_command('sudo apt update && sudo apt install -y filezilla')
-    print("FileZilla installed successfully.")
-
-def main():
-    install_chrome()
-    install_putty()
-    install_angry_ip_scanner()
-    install_remmina()
-    install_filezilla()
-    print("All applications installed successfully!")
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    main()
+    install_software()
+
